@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voxo Call Logs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .status-none        { @apply bg-gray-100 text-gray-600; }
+    .status-pending     { @apply bg-yellow-100 text-yellow-700; }
+    .status-processing  { @apply bg-blue-100 text-blue-700; }
+    .status-done        { @apply bg-green-100 text-green-700; }
+    .status-failed      { @apply bg-red-100 text-red-700; }
+
+    .transcript-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .transcript-body.open {
+      max-height: 500px;
+    }
+
+    .spinner {
+      border: 3px solid #e5e7eb;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+        </svg>
+      </div>
+      <h1 class="text-xl font-semibold text-gray-900">Voxo Call Logs</h1>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <span id="last-updated" class="text-sm text-gray-400"></span>
+      <div id="sync-status" class="text-sm text-gray-500 hidden flex items-center gap-2">
+        <span class="spinner"></span>
+        <span>Syncing…</span>
+      </div>
+      <button id="retry-btn"
+        onclick="retryFailed()"
+        class="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors">
+        Retry Failed
+      </button>
+      <button id="refresh-btn"
+        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
+        <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats bar -->
+  <div id="stats-bar" class="bg-white border-b border-gray-200 px-6 py-3 flex gap-6 text-sm text-gray-500">
+    <span>Total: <strong id="stat-total" class="text-gray-800">—</strong></span>
+    <span>Recorded: <strong id="stat-recorded" class="text-gray-800">—</strong></span>
+    <span>Transcribed: <strong id="stat-transcribed" class="text-gray-800">—</strong></span>
+    <span>Pending: <strong id="stat-pending" class="text-gray-800">—</strong></span>
+  </div>
+
+  <!-- Table -->
+  <main class="px-6 py-6">
+    <div id="error-msg" class="hidden mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Direction</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Caller</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Called</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Start Time</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Duration</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Disposition</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Recording</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Transcription</th>
+            </tr>
+          </thead>
+          <tbody id="calls-body">
+            <tr>
+              <td colspan="8" class="px-4 py-12 text-center text-gray-400">
+                <span class="spinner inline-block mb-2"></span><br/>Loading…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // state
+    // -------------------------------------------------------------------------
+    let calls = [];
+    let autoRefreshInterval = null;
+
+    // -------------------------------------------------------------------------
+    // API
+    // -------------------------------------------------------------------------
+    async function fetchCalls() {
+      const res = await fetch('/api/calls');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    async function triggerSync() {
+      const res = await fetch('/api/calls/sync', { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    async function retryFailed() {
+      const btn = document.getElementById('retry-btn');
+      btn.disabled = true;
+      btn.textContent = 'Resetting…';
+      try {
+        const res = await fetch('/api/calls/retry-failed', { method: 'POST' });
+        const data = await res.json();
+        btn.textContent = `Reset ${data.reset}`;
+        setTimeout(() => { btn.textContent = 'Retry Failed'; btn.disabled = false; }, 2000);
+        await loadCalls(true);
+      } catch (e) {
+        btn.textContent = 'Error';
+        setTimeout(() => { btn.textContent = 'Retry Failed'; btn.disabled = false; }, 2000);
+      }
+    }
+
+
+    // -------------------------------------------------------------------------
+    // render
+    // -------------------------------------------------------------------------
+    function directionBadge(dir) {
+      if (dir === 'IN') {
+        return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>IN</span>`;
+      }
+      return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+        </svg>OUT</span>`;
+    }
+
+    function dispositionBadge(d) {
+      const map = {
+        ANSWERED: 'bg-green-100 text-green-700',
+        'NO ANSWER': 'bg-gray-100 text-gray-600',
+        BUSY: 'bg-orange-100 text-orange-700',
+        FAILED: 'bg-red-100 text-red-700',
+      };
+      const cls = map[d] || 'bg-gray-100 text-gray-600';
+      return `<span class="px-2 py-0.5 rounded-full text-xs font-medium ${cls}">${d}</span>`;
+    }
+
+    function transcriptionBadge(status) {
+      const map = {
+        none:       ['bg-gray-100 text-gray-500',   '—'],
+        pending:    ['bg-yellow-100 text-yellow-700','Pending'],
+        processing: ['bg-blue-100 text-blue-700',   'Processing…'],
+        done:       ['bg-green-100 text-green-700',  'Done'],
+        failed:     ['bg-red-100 text-red-700',      'Failed'],
+      };
+      const [cls, label] = map[status] || map.none;
+      const spin = status === 'processing'
+        ? `<span class="spinner" style="width:12px;height:12px;border-width:2px;margin-right:4px;"></span>` : '';
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cls}">${spin}${label}</span>`;
+    }
+
+    function formatDuration(secs) {
+      if (!secs) return '—';
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return m > 0 ? `${m}m ${s}s` : `${s}s`;
+    }
+
+    function formatTime(str) {
+      if (!str) return '—';
+      try {
+        return new Date(str.replace(' ', 'T') + 'Z').toLocaleString();
+      } catch { return str; }
+    }
+
+    function renderRow(call, index) {
+      const rowId = `row-${index}`;
+      const audioId = `audio-${index}`;
+      const transcriptId = `transcript-${index}`;
+
+      const recordingCell = call.recorded && call.media_url
+        ? `<button
+             data-media-url="${escapeHtml(call.media_url)}"
+             data-audio-id="${audioId}"
+             onclick="loadAudio(this)"
+             class="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 text-xs font-medium">
+             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                 d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                 d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+             </svg>
+             Play
+           </button>
+           <div id="${audioId}" class="hidden mt-2">
+             <audio controls class="w-full max-w-xs h-8" style="min-width:200px"></audio>
+           </div>`
+        : call.recorded
+          ? `<span class="text-gray-400 text-xs">URL pending</span>`
+          : `<span class="text-gray-300 text-xs">No recording</span>`;
+
+      const transcriptCell = call.transcription_status === 'done' && call.transcription
+        ? `${transcriptionBadge(call.transcription_status)}
+           <div class="mt-1">
+             <button onclick="toggleTranscript('${transcriptId}')"
+               class="text-xs text-indigo-500 hover:text-indigo-700">Show ▾</button>
+             <div id="${transcriptId}" class="transcript-body mt-1 text-xs text-gray-600 leading-relaxed bg-gray-50 rounded p-2">
+               ${escapeHtml(call.transcription)}
+             </div>
+           </div>`
+        : transcriptionBadge(call.transcription_status);
+
+      return `
+        <tr id="${rowId}" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3">${directionBadge(call.direction)}</td>
+          <td class="px-4 py-3">
+            <div class="font-medium text-gray-900">${escapeHtml(call.cid_number)}</div>
+            <div class="text-xs text-gray-400">${escapeHtml(call.cid_name || '')}</div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="font-medium text-gray-900">${escapeHtml(call.dialed_number)}</div>
+            <div class="text-xs text-gray-400">${escapeHtml(call.dialed_name || '')}</div>
+          </td>
+          <td class="px-4 py-3 text-gray-600 whitespace-nowrap">${formatTime(call.start_time)}</td>
+          <td class="px-4 py-3 text-gray-600">${formatDuration(call.recording_duration)}</td>
+          <td class="px-4 py-3">${dispositionBadge(call.disposition)}</td>
+          <td class="px-4 py-3">${recordingCell}</td>
+          <td class="px-4 py-3">${transcriptCell}</td>
+        </tr>`;
+    }
+
+    function renderTable(data) {
+      calls = data;
+      const tbody = document.getElementById('calls-body');
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-12 text-center text-gray-400">No calls yet — hit Refresh to sync.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map((c, i) => renderRow(c, i)).join('');
+
+      // stats
+      document.getElementById('stat-total').textContent = data.length;
+      document.getElementById('stat-recorded').textContent = data.filter(c => c.recorded).length;
+      document.getElementById('stat-transcribed').textContent = data.filter(c => c.transcription_status === 'done').length;
+      document.getElementById('stat-pending').textContent = data.filter(c => ['pending','processing'].includes(c.transcription_status)).length;
+    }
+
+    // -------------------------------------------------------------------------
+    // audio player — use media_url already stored in DB
+    // -------------------------------------------------------------------------
+    function loadAudio(btn) {
+      const audioContainerId = btn.dataset.audioId;
+      const container = document.getElementById(audioContainerId);
+      const audio = container.querySelector('audio');
+
+      if (container.classList.contains('hidden')) {
+        if (!audio.src) {
+          audio.src = btn.dataset.mediaUrl;
+        }
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    function toggleTranscript(id) {
+      const el = document.getElementById(id);
+      const btn = el.previousElementSibling;
+      if (el.classList.contains('open')) {
+        el.classList.remove('open');
+        btn.textContent = 'Show ▾';
+      } else {
+        el.classList.add('open');
+        btn.textContent = 'Hide ▴';
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // -------------------------------------------------------------------------
+    // load & auto-refresh
+    // -------------------------------------------------------------------------
+    async function loadCalls(silent = false) {
+      if (!silent) showError(null);
+      try {
+        const data = await fetchCalls();
+        renderTable(data);
+        document.getElementById('last-updated').textContent =
+          'Updated ' + new Date().toLocaleTimeString();
+      } catch (e) {
+        showError('Failed to load calls: ' + e.message);
+      }
+    }
+
+    async function handleRefresh() {
+      const btn = document.getElementById('refresh-btn');
+      const syncStatus = document.getElementById('sync-status');
+      btn.disabled = true;
+      btn.classList.add('opacity-60', 'cursor-not-allowed');
+      syncStatus.classList.remove('hidden');
+      showError(null);
+
+      try {
+        await triggerSync();
+        await loadCalls(true);
+      } catch (e) {
+        showError('Sync failed: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-60', 'cursor-not-allowed');
+        syncStatus.classList.add('hidden');
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      if (msg) {
+        el.textContent = msg;
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    // Poll every 30 s for transcription status updates (silent, no sync)
+    function startAutoRefresh() {
+      if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+      autoRefreshInterval = setInterval(() => loadCalls(true), 30_000);
+    }
+
+    // -------------------------------------------------------------------------
+    // init
+    // -------------------------------------------------------------------------
+    document.getElementById('refresh-btn').addEventListener('click', handleRefresh);
+
+    loadCalls();
+    startAutoRefresh();
+  </script>
+</body>
+</html>
