@@ -14,9 +14,24 @@ router = APIRouter(prefix="/api/calls", tags=["calls"])
 
 
 @router.get("")
-def list_calls(session: Session = Depends(get_session)) -> list[dict]:
-    calls = session.exec(select(Call).order_by(Call.start_time.desc())).all()
-    return [_serialize(c) for c in calls]
+def list_calls(
+    page: int = 1,
+    page_size: int = 50,
+    session: Session = Depends(get_session),
+) -> dict:
+    offset = (page - 1) * page_size
+    total = session.exec(select(Call)).all()
+    total_count = len(total)
+    calls = session.exec(
+        select(Call).order_by(Call.start_time.desc()).offset(offset).limit(page_size)
+    ).all()
+    return {
+        "calls": [_serialize(c) for c in calls],
+        "total": total_count,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": max(1, -(-total_count // page_size)),
+    }
 
 
 @router.post("/sync")

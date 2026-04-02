@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.database import create_db_and_tables
 from app.routers.calls import router as calls_router
+from app.routers.emails import router as emails_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -54,6 +55,7 @@ def _sync_job() -> None:
 # ---------------------------------------------------------------------------
 
 app.include_router(calls_router)
+app.include_router(emails_router)
 
 # Serve the SPA last so API routes take precedence
 app.mount("/", StaticFiles(directory="app/static", html=True), name="static")

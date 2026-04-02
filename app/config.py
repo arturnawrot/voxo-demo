@@ -12,6 +12,10 @@ class Settings(BaseSettings):
 
     sync_lookback_days: int = 30
 
+    nylas_api_key: str
+    nylas_api_url: str = "https://api.us.nylas.com"
+    nylas_grant_id: str
+
     model_config = {"env_file": ".env"}
 
 

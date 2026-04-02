@@ -53,11 +53,6 @@
         <span class="spinner"></span>
         <span>Syncing…</span>
       </div>
-      <button id="retry-btn"
-        onclick="retryFailed()"
-        class="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors">
-        Retry Failed
-      </button>
       <button id="refresh-btn"
         class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors">
         <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,65 +64,242 @@
     </div>
   </header>
 
-  <!-- Stats bar -->
-  <div id="stats-bar" class="bg-white border-b border-gray-200 px-6 py-3 flex gap-6 text-sm text-gray-500">
-    <span>Total: <strong id="stat-total" class="text-gray-800">—</strong></span>
-    <span>Recorded: <strong id="stat-recorded" class="text-gray-800">—</strong></span>
-    <span>Transcribed: <strong id="stat-transcribed" class="text-gray-800">—</strong></span>
-    <span>Pending: <strong id="stat-pending" class="text-gray-800">—</strong></span>
-  </div>
 
   <!-- Table -->
   <main class="px-6 py-6">
     <div id="error-msg" class="hidden mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm"></div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-gray-50 border-b border-gray-200">
-              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Direction</th>
-              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Caller</th>
-              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Called</th>
-              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Start Time</th>
-              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Duration</th>
-              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Disposition</th>
-              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Recording</th>
-              <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Transcription</th>
-            </tr>
-          </thead>
-          <tbody id="calls-body">
-            <tr>
-              <td colspan="8" class="px-4 py-12 text-center text-gray-400">
-                <span class="spinner inline-block mb-2"></span><br/>Loading…
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div onclick="toggleCard('calls')"
+        class="flex items-center justify-between px-4 py-3 border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer select-none">
+        <div class="flex items-center gap-4">
+          <h2 class="text-sm font-semibold text-gray-700">Call Logs</h2>
+          <div class="flex items-center gap-3 text-xs text-gray-500">
+            <span>Total: <strong id="stat-total" class="text-gray-800">—</strong></span>
+            <span>Recorded: <strong id="stat-recorded" class="text-gray-800">—</strong></span>
+            <span>Transcribed: <strong id="stat-transcribed" class="text-gray-800">—</strong></span>
+            <span>Pending: <strong id="stat-pending" class="text-gray-800">—</strong></span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="retry-btn" onclick="event.stopPropagation(); retryFailed()"
+            class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium rounded-md transition-colors">
+            Retry Failed
+          </button>
+          <svg id="calls-chevron" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+      </div>
+      <div id="calls-card-body">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Direction</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Caller</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Called</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Start Time</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Duration</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Disposition</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Recording</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Transcription</th>
+              </tr>
+            </thead>
+            <tbody id="calls-body">
+              <tr>
+                <td colspan="8" class="px-4 py-12 text-center text-gray-400">
+                  <span class="spinner inline-block mb-2"></span><br/>Loading…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginator mounts here — see Paginator class in script -->
+        <div id="calls-pagination"></div>
+      </div>
+    </div>
+
+    <!-- Emails card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+      <div onclick="toggleCard('emails')"
+        class="flex items-center justify-between px-4 py-3 border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer select-none">
+        <div class="flex items-center gap-4">
+          <h2 class="text-sm font-semibold text-gray-700">Emails</h2>
+          <span id="emails-count" class="text-xs text-gray-500"></span>
+        </div>
+        <svg id="emails-chevron" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      <div id="emails-card-body">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">From</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Subject</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Preview</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Date</th>
+              </tr>
+            </thead>
+            <tbody id="emails-body">
+              <tr>
+                <td colspan="4" class="px-4 py-12 text-center text-gray-400">
+                  <span class="spinner inline-block mb-2"></span><br/>Loading…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="emails-pagination"></div>
       </div>
     </div>
   </main>
 
   <script>
-    // -------------------------------------------------------------------------
-    // state
-    // -------------------------------------------------------------------------
+    // =========================================================================
+    // Paginator — reusable, self-rendering pagination controller
+    //
+    // Usage:
+    //   const p = new Paginator({
+    //     name: 'calls',           // unique key — used for cookie + element IDs
+    //     containerId: 'calls-pagination',
+    //     defaultPageSize: 25,     // overridden by saved cookie
+    //     pageSizeOptions: [10, 25, 50, 100],
+    //     onPageChange: () => loadCalls(true),
+    //   });
+    //   p.update(apiResponse);     // response must have { total, total_pages, page }
+    //   p.pageSize                 // always current value (use in fetch)
+    //
+    // HTML: just add <div id="{containerId}"></div> — the class renders into it.
+    // =========================================================================
+    class Paginator {
+      constructor({ name, containerId, defaultPageSize = 25, pageSizeOptions = [10, 25, 50, 100], onPageChange }) {
+        this.name            = name;
+        this.pageSizeOptions = pageSizeOptions;
+        this.onPageChange    = onPageChange;
+        this.currentPage     = 1;
+        this.totalPages      = 1;
+        this.totalCount      = 0;
+        this.pageSize        = this._loadPageSize() || defaultPageSize;
+
+        this._mount(containerId);
+      }
+
+      /** Call after each successful API response */
+      update({ total, total_pages, page }) {
+        this.totalCount  = total;
+        this.totalPages  = total_pages;
+        this.currentPage = page;
+        this._render();
+      }
+
+      _loadPageSize() {
+        const m = document.cookie.match(new RegExp(`(?:^|; )paginator_${this.name}_pageSize=(\\d+)`));
+        return m ? Number(m[1]) : null;
+      }
+
+      _savePageSize(size) {
+        document.cookie = `paginator_${this.name}_pageSize=${size};path=/;max-age=${60 * 60 * 24 * 365}`;
+      }
+
+      _mount(containerId) {
+        const n = this.name;
+        const opts = this.pageSizeOptions.map(v =>
+          `<option value="${v}"${v === this.pageSize ? ' selected' : ''}>${v}</option>`
+        ).join('');
+
+        document.getElementById(containerId).innerHTML = `
+          <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 text-sm text-gray-600">
+            <span id="${n}-info"></span>
+            <div class="flex items-center gap-2">
+              <label class="text-gray-400 text-xs">Per page</label>
+              <select id="${n}-pagesize" class="text-xs border border-gray-300 rounded px-1.5 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400">
+                ${opts}
+              </select>
+              <button id="${n}-prev" class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">← Prev</button>
+              <span id="${n}-pages" class="flex gap-1"></span>
+              <button id="${n}-next" class="px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Next →</button>
+            </div>
+          </div>`;
+
+        document.getElementById(`${n}-prev`)
+          .addEventListener('click', () => this._go(this.currentPage - 1));
+        document.getElementById(`${n}-next`)
+          .addEventListener('click', () => this._go(this.currentPage + 1));
+        document.getElementById(`${n}-pagesize`)
+          .addEventListener('change', e => {
+            this.pageSize = Number(e.target.value);
+            this._savePageSize(this.pageSize);
+            this.currentPage = 1;
+            this.onPageChange();
+          });
+      }
+
+      _go(p) {
+        if (p < 1 || p > this.totalPages) return;
+        this.currentPage = p;
+        this.onPageChange();
+      }
+
+      _render() {
+        const { name: n, currentPage, pageSize, totalPages, totalCount } = this;
+        const start = (currentPage - 1) * pageSize + 1;
+        const end   = Math.min(currentPage * pageSize, totalCount);
+
+        document.getElementById(`${n}-info`).textContent =
+          totalCount ? `Showing ${start}–${end} of ${totalCount}` : '';
+
+        document.getElementById(`${n}-prev`).disabled = currentPage <= 1;
+        document.getElementById(`${n}-next`).disabled = currentPage >= totalPages;
+
+        const pagesEl = document.getElementById(`${n}-pages`);
+        const pages = [];
+        for (let p = Math.max(1, currentPage - 2); p <= Math.min(totalPages, currentPage + 2); p++) {
+          pages.push(p);
+        }
+        pagesEl.innerHTML = pages.map(p => {
+          const cls = p === currentPage
+            ? 'bg-indigo-600 text-white border-indigo-600'
+            : 'border-gray-300 hover:bg-gray-50';
+          return `<button data-page="${p}" class="px-3 py-1.5 rounded-lg border text-sm transition-colors ${cls}">${p}</button>`;
+        }).join('');
+        pagesEl.querySelectorAll('button').forEach(btn =>
+          btn.addEventListener('click', () => this._go(Number(btn.dataset.page)))
+        );
+      }
+    }
+
+    // =========================================================================
+    // Calls table
+    // =========================================================================
     let calls = [];
     let autoRefreshInterval = null;
+
+    const callsPaginator = new Paginator({
+      name: 'calls',
+      containerId: 'calls-pagination',
+      defaultPageSize: 25,
+      pageSizeOptions: [5, 10, 25, 50, 100],
+      onPageChange: () => loadCalls(true),
+    });
 
     // -------------------------------------------------------------------------
     // API
     // -------------------------------------------------------------------------
     async function fetchCalls() {
-      const res = await fetch('/api/calls');
+      const res = await fetch(`/api/calls?page=${callsPaginator.currentPage}&page_size=${callsPaginator.pageSize}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
     }
 
     async function triggerSync() {
-      const res = await fetch('/api/calls/sync', { method: 'POST' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      await Promise.all([
+        fetch('/api/calls/sync',  { method: 'POST' }).then(r => { if (!r.ok) throw new Error(`calls sync HTTP ${r.status}`); }),
+        fetch('/api/emails/sync', { method: 'POST' }).then(r => { if (!r.ok) throw new Error(`emails sync HTTP ${r.status}`); }),
+      ]);
     }
 
     async function retryFailed() {
@@ -204,29 +376,18 @@
 
     function renderRow(call, index) {
       const rowId = `row-${index}`;
-      const audioId = `audio-${index}`;
       const transcriptId = `transcript-${index}`;
 
-      const recordingCell = call.recorded && call.media_url
-        ? `<button
-             data-media-url="${escapeHtml(call.media_url)}"
-             data-audio-id="${audioId}"
-             onclick="loadAudio(this)"
-             class="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 text-xs font-medium">
+      const recordingCell = call.recorded
+        ? `<button onclick="openRecording('${escapeHtml(call.call_id)}')"
+             class="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 text-xs font-medium disabled:opacity-40">
              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                 d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                 d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                 d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
              </svg>
-             Play
-           </button>
-           <div id="${audioId}" class="hidden mt-2">
-             <audio controls class="w-full max-w-xs h-8" style="min-width:200px"></audio>
-           </div>`
-        : call.recorded
-          ? `<span class="text-gray-400 text-xs">URL pending</span>`
-          : `<span class="text-gray-300 text-xs">No recording</span>`;
+             Open
+           </button>`
+        : `<span class="text-gray-300 text-xs">No recording</span>`;
 
       const transcriptCell = call.transcription_status === 'done' && call.transcription
         ? `${transcriptionBadge(call.transcription_status)}
@@ -258,39 +419,51 @@
         </tr>`;
     }
 
-    function renderTable(data) {
-      calls = data;
+    function renderTable(response) {
+      calls = response.calls;
+      callsPaginator.update(response);
+
       const tbody = document.getElementById('calls-body');
 
-      if (!data.length) {
+      if (!calls.length) {
         tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-12 text-center text-gray-400">No calls yet — hit Refresh to sync.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = data.map((c, i) => renderRow(c, i)).join('');
+      tbody.innerHTML = calls.map((c, i) => renderRow(c, i)).join('');
 
-      // stats
-      document.getElementById('stat-total').textContent = data.length;
-      document.getElementById('stat-recorded').textContent = data.filter(c => c.recorded).length;
-      document.getElementById('stat-transcribed').textContent = data.filter(c => c.transcription_status === 'done').length;
-      document.getElementById('stat-pending').textContent = data.filter(c => ['pending','processing'].includes(c.transcription_status)).length;
+      document.getElementById('stat-total').textContent = response.total;
+      document.getElementById('stat-recorded').textContent = calls.filter(c => c.recorded).length;
+      document.getElementById('stat-transcribed').textContent = calls.filter(c => c.transcription_status === 'done').length;
+      document.getElementById('stat-pending').textContent = calls.filter(c => ['pending','processing'].includes(c.transcription_status)).length;
     }
 
     // -------------------------------------------------------------------------
-    // audio player — use media_url already stored in DB
-    // -------------------------------------------------------------------------
-    function loadAudio(btn) {
-      const audioContainerId = btn.dataset.audioId;
-      const container = document.getElementById(audioContainerId);
-      const audio = container.querySelector('audio');
+    async function openRecording(callId) {
+      try {
+        const res = await fetch(`/api/calls/${callId}/recording-url`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { url } = await res.json();
+        window.open(url, '_blank', 'noopener');
+      } catch (e) {
+        showError('Could not fetch recording URL: ' + e.message);
+      }
+    }
 
-      if (container.classList.contains('hidden')) {
-        if (!audio.src) {
-          audio.src = btn.dataset.mediaUrl;
-        }
-        container.classList.remove('hidden');
-      } else {
-        container.classList.add('hidden');
+    function toggleCard(name) {
+      const body    = document.getElementById(`${name}-card-body`);
+      const chevron = document.getElementById(`${name}-chevron`);
+      const collapsed = !body.classList.contains('hidden');
+      body.classList.toggle('hidden', collapsed);
+      chevron.classList.toggle('rotate-180', !collapsed);
+      document.cookie = `card_${name}_collapsed=${collapsed};path=/;max-age=${60 * 60 * 24 * 365}`;
+    }
+
+    function restoreCardState(name) {
+      const m = document.cookie.match(new RegExp(`(?:^|; )card_${name}_collapsed=(true|false)`));
+      if (m && m[1] === 'true') {
+        document.getElementById(`${name}-card-body`).classList.add('hidden');
+        document.getElementById(`${name}-chevron`).classList.remove('rotate-180');
       }
     }
 
@@ -339,7 +512,10 @@
 
       try {
         await triggerSync();
-        await loadCalls(true);
+        // Reset cursor stack so emails restarts from page 1 with fresh cache
+        emailsCursorStack = [null];
+        emailsStackIndex  = 0;
+        await Promise.all(cardLoaders.map(fn => fn(true)));
       } catch (e) {
         showError('Sync failed: ' + e.message);
       } finally {
@@ -359,10 +535,119 @@
       }
     }
 
-    // Poll every 30 s for transcription status updates (silent, no sync)
+    // =========================================================================
+    // Emails card — cursor-based pagination
+    // =========================================================================
+    const emailsPageSize = 25;
+    let emailsCursorStack = [null]; // null = first page; push cursors as user navigates forward
+    let emailsStackIndex  = 0;
+
+    const emailsPaginator = new Paginator({
+      name: 'emails',
+      containerId: 'emails-pagination',
+      defaultPageSize: emailsPageSize,
+      pageSizeOptions: [10, 25, 50],
+      onPageChange: () => { /* handled by cursor nav buttons below */ },
+    });
+
+    // Override the paginator's prev/next to use cursor navigation instead
+    document.getElementById('emails-prev').removeEventListener('click', null);
+    document.getElementById('emails-next').removeEventListener('click', null);
+    document.getElementById('emails-prev').onclick = () => {
+      if (emailsStackIndex <= 0) return;
+      emailsStackIndex--;
+      loadEmails(true);
+    };
+    document.getElementById('emails-next').onclick = (e) => {
+      e.stopImmediatePropagation();
+      // next_cursor is stored as the last item in the stack
+      if (emailsStackIndex >= emailsCursorStack.length - 1) return;
+      emailsStackIndex++;
+      loadEmails(true);
+    };
+
+    async function fetchEmails() {
+      const cursor = emailsCursorStack[emailsStackIndex];
+      const limit  = emailsPaginator.pageSize;
+      const params = new URLSearchParams({ limit });
+      if (cursor) params.set('page_token', cursor);
+      const res = await fetch(`/api/emails?${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    function renderEmailsTable(data) {
+      const { emails, next_cursor } = data;
+      const tbody = document.getElementById('emails-body');
+
+      // Update cursor stack: trim forward history and push new cursor if present
+      emailsCursorStack = emailsCursorStack.slice(0, emailsStackIndex + 1);
+      if (next_cursor && emailsCursorStack[emailsCursorStack.length - 1] !== next_cursor) {
+        emailsCursorStack.push(next_cursor);
+      }
+
+      // Update count label
+      document.getElementById('emails-count').textContent =
+        emails.length ? `${emails.length} shown` : '';
+
+      // Update paginator nav state (reuse prev/next buttons, hide page numbers)
+      document.getElementById('emails-prev').disabled = emailsStackIndex <= 0;
+      document.getElementById('emails-next').disabled = emailsStackIndex >= emailsCursorStack.length - 1;
+      document.getElementById('emails-pages').innerHTML =
+        `<span class="text-xs text-gray-500 px-1">Page ${emailsStackIndex + 1}</span>`;
+
+      if (!emails.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-12 text-center text-gray-400">No emails found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = emails.map((e, i) => {
+        const bodyId = `email-body-${i}`;
+        const date = e.date ? new Date(e.date * 1000).toLocaleString() : '—';
+        const hasBody = e.body_text && e.body_text.trim();
+        return `
+        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3">
+            <div class="font-medium text-gray-900 text-xs">${escapeHtml(e.from_name || e.from_email)}</div>
+            <div class="text-xs text-gray-400">${escapeHtml(e.from_email)}</div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2">
+              ${e.unread ? `<span class="w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0"></span>` : ''}
+              <span class="text-xs ${e.unread ? 'font-semibold text-gray-900' : 'text-gray-700'}">${escapeHtml(e.subject)}</span>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-xs text-gray-500 max-w-sm">
+            <div class="truncate">${escapeHtml(e.snippet)}</div>
+            ${hasBody ? `
+              <button onclick="toggleTranscript('${bodyId}')" class="text-xs text-indigo-500 hover:text-indigo-700 mt-0.5">Show ▾</button>
+              <div id="${bodyId}" class="transcript-body mt-1 text-xs text-gray-600 leading-relaxed bg-gray-50 rounded p-2 whitespace-pre-wrap">${escapeHtml(e.body_text)}</div>
+            ` : ''}
+          </td>
+          <td class="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">${date}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function loadEmails(silent = false) {
+      if (!silent) showError(null);
+      try {
+        const data = await fetchEmails();
+        renderEmailsTable(data);
+      } catch (e) {
+        showError('Failed to load emails: ' + e.message);
+      }
+    }
+
+    // =========================================================================
+    // Universal refresh — add every card loader here
+    // =========================================================================
+    const cardLoaders = [loadCalls, loadEmails];
+
+    // Poll every 30 s — reload all cards silently
     function startAutoRefresh() {
       if (autoRefreshInterval) clearInterval(autoRefreshInterval);
-      autoRefreshInterval = setInterval(() => loadCalls(true), 30_000);
+      autoRefreshInterval = setInterval(() => cardLoaders.forEach(fn => fn(true)), 30_000);
     }
 
     // -------------------------------------------------------------------------
@@ -370,7 +655,9 @@
     // -------------------------------------------------------------------------
     document.getElementById('refresh-btn').addEventListener('click', handleRefresh);
 
-    loadCalls();
+    restoreCardState('calls');
+    restoreCardState('emails');
+    cardLoaders.forEach(fn => fn());
     startAutoRefresh();
   </script>
 </body>
