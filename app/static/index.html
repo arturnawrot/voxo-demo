@@ -83,7 +83,7 @@
         </div>
         <div class="flex items-center gap-2">
           <button id="retry-btn" onclick="event.stopPropagation(); retryFailed()"
-            class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium rounded-md transition-colors">
+            class="hidden px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium rounded-md transition-colors">
             Retry Failed
           </button>
           <svg id="calls-chevron" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -432,10 +432,12 @@
 
       tbody.innerHTML = calls.map((c, i) => renderRow(c, i)).join('');
 
+      const failedCount = calls.filter(c => c.transcription_status === 'failed').length;
       document.getElementById('stat-total').textContent = response.total;
       document.getElementById('stat-recorded').textContent = calls.filter(c => c.recorded).length;
       document.getElementById('stat-transcribed').textContent = calls.filter(c => c.transcription_status === 'done').length;
       document.getElementById('stat-pending').textContent = calls.filter(c => ['pending','processing'].includes(c.transcription_status)).length;
+      document.getElementById('retry-btn').classList.toggle('hidden', failedCount === 0);
     }
 
     // -------------------------------------------------------------------------
