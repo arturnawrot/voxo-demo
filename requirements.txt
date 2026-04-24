@@ -11,4 +11,7 @@ apscheduler==3.10.4
 redis==5.2.1
 python-dotenv==1.0.1
 git+https://github.com/arturnawrot/voxo-api
+git+https://github.com/arturnawrot/nexsure-api
 nylas==6.4.0
+itsdangerous==2.2.0
+python-multipart==0.0.20

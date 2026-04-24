@@ -16,6 +16,13 @@ class Settings(BaseSettings):
     nylas_api_url: str = "https://api.us.nylas.com"
     nylas_grant_id: str
 
+    nexsure_integration_key: str
+    nexsure_integration_login: str
+    nexsure_integration_pwd: str
+
+    app_password: str
+    session_secret: str
+
     model_config = {"env_file": ".env"}
 
 

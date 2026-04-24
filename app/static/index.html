@@ -121,6 +121,110 @@
       </div>
     </div>
 
+    <!-- Nexsure Clients card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+      <div onclick="toggleCard('nexsure')"
+        class="flex items-center justify-between px-4 py-3 border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer select-none">
+        <div class="flex items-center gap-4 flex-1 min-w-0">
+          <h2 class="text-sm font-semibold text-gray-700 shrink-0">Nexsure Clients</h2>
+          <span id="nexsure-count" class="text-xs text-gray-500 shrink-0"></span>
+          <input
+            id="nexsure-search"
+            onclick="event.stopPropagation()"
+            oninput="onNexsureSearch()"
+            type="text"
+            placeholder="Search by name (min 2 chars)…"
+            class="ml-2 text-xs border border-gray-300 rounded px-2 py-1 w-48 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+          />
+        </div>
+        <div class="flex items-center gap-2 shrink-0" onclick="event.stopPropagation()">
+          <button onclick="openModal('add-client-modal')"
+            class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-md transition-colors">
+            + Add Client
+          </button>
+          <button onclick="openModal('add-policy-modal')"
+            class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-md transition-colors">
+            + Add Policy
+          </button>
+          <svg id="nexsure-chevron" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+      </div>
+      <div id="nexsure-card-body">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Client ID</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Name</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Type</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">Stage</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">City</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">State</th>
+              </tr>
+            </thead>
+            <tbody id="nexsure-body">
+              <tr>
+                <td colspan="6" class="px-4 py-12 text-center text-gray-400">
+                  <span class="spinner inline-block mb-2"></span><br/>Loading…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="nexsure-pagination"></div>
+      </div>
+    </div>
+
+    <!-- SIC / NAICS Search card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+      <div onclick="toggleCard('sic-naics')"
+        class="flex items-center justify-between px-4 py-3 border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer select-none">
+        <div class="flex items-center gap-4 flex-1 min-w-0 flex-wrap" onclick="event.stopPropagation()">
+          <h2 class="text-sm font-semibold text-gray-700 shrink-0 cursor-pointer" onclick="toggleCard('sic-naics')">SIC / NAICS Search (Nexsure API)</h2>
+          <input id="sic-naics-desc"  type="text" placeholder="NAICS description…"
+            oninput="onSicNaicsSearch()" onclick="event.stopPropagation()"
+            class="text-xs border border-gray-300 rounded px-2 py-1 w-44 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+          <input id="sic-desc"        type="text" placeholder="SIC description…"
+            oninput="onSicNaicsSearch()" onclick="event.stopPropagation()"
+            class="text-xs border border-gray-300 rounded px-2 py-1 w-40 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+          <input id="naics-code"      type="text" placeholder="NAICS code…"
+            oninput="onSicNaicsSearch()" onclick="event.stopPropagation()"
+            class="text-xs border border-gray-300 rounded px-2 py-1 w-28 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+          <input id="sic-code"        type="text" placeholder="SIC code…"
+            oninput="onSicNaicsSearch()" onclick="event.stopPropagation()"
+            class="text-xs border border-gray-300 rounded px-2 py-1 w-24 focus:outline-none focus:ring-1 focus:ring-indigo-400" />
+          <span id="sic-naics-count" class="text-xs text-gray-500 shrink-0"></span>
+        </div>
+        <svg id="sic-naics-chevron" class="w-4 h-4 text-gray-400 transition-transform duration-200 ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      <div id="sic-naics-card-body">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">NAICS Code</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">NAICS Description</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">SIC Code</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wide text-xs">SIC Description</th>
+              </tr>
+            </thead>
+            <tbody id="sic-naics-body">
+              <tr>
+                <td colspan="4" class="px-4 py-12 text-center text-gray-400">
+                  <span class="spinner inline-block mb-2"></span><br/>Loading…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="sic-naics-pagination"></div>
+      </div>
+    </div>
+
     <!-- Emails card -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
       <div onclick="toggleCard('emails')"
@@ -157,6 +261,197 @@
       </div>
     </div>
   </main>
+
+  <!-- ======================================================================
+       Add Client Modal
+       ====================================================================== -->
+  <div id="add-client-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+        <h3 class="text-sm font-semibold text-gray-800">Add New Nexsure Client</h3>
+        <button onclick="closeModal('add-client-modal')" class="text-gray-400 hover:text-gray-600 text-lg leading-none">&times;</button>
+      </div>
+      <form id="add-client-form" class="px-5 py-4 space-y-3" onsubmit="submitAddClient(event)">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Client Name <span class="text-red-500">*</span></label>
+            <input name="name" required type="text" placeholder="Acme Corp"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Branch ID <span class="text-red-500">*</span></label>
+            <input name="branch_id" required type="text" placeholder="e.g. 1"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Department ID <span class="text-red-500">*</span></label>
+            <input name="department_id" required type="text" placeholder="e.g. 1"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Client Type</label>
+            <select name="client_type"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="Commercial">Commercial</option>
+              <option value="Personal">Personal</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Stage</label>
+            <select name="stage"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="Prospect">Prospect</option>
+              <option value="Client">Client</option>
+              <option value="Suspect">Suspect</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Legal Entity</label>
+            <select name="legal_entity"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="Corporation">Corporation</option>
+              <option value="LLC">LLC</option>
+              <option value="Individual">Individual</option>
+              <option value="Partnership">Partnership</option>
+              <option value="JointVenture">Joint Venture</option>
+              <option value="NPCorp">Non-Profit Corp</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Street Address <span class="text-red-500">*</span></label>
+            <input name="street" required type="text" placeholder="123 Main St"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">City <span class="text-red-500">*</span></label>
+            <input name="city" required type="text" placeholder="Springfield"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">State <span class="text-red-500">*</span></label>
+            <input name="state" required type="text" placeholder="IL" maxlength="2"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">ZIP Code <span class="text-red-500">*</span></label>
+            <input name="zip_code" required type="text" placeholder="62701"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Contact First Name</label>
+            <input name="contact_first_name" type="text" placeholder="Jane"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Contact Last Name</label>
+            <input name="contact_last_name" type="text" placeholder="Smith"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+        </div>
+        <div id="add-client-error" class="hidden text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="closeModal('add-client-modal')"
+            class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+          <button id="add-client-submit" type="submit"
+            class="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+            Create Client
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       Add Policy Modal
+       ====================================================================== -->
+  <div id="add-policy-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+        <h3 class="text-sm font-semibold text-gray-800">Add New Nexsure Policy</h3>
+        <button onclick="closeModal('add-policy-modal')" class="text-gray-400 hover:text-gray-600 text-lg leading-none">&times;</button>
+      </div>
+      <form id="add-policy-form" class="px-5 py-4 space-y-3" onsubmit="submitAddPolicy(event)">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Client ID <span class="text-red-500">*</span></label>
+            <input name="client_id" required type="text" placeholder="e.g. 12345"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Policy Number <span class="text-red-500">*</span></label>
+            <input name="policy_number" required type="text" placeholder="POL-001"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Branch ID <span class="text-red-500">*</span></label>
+            <input name="branch_id" required type="text" placeholder="e.g. 1"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Department ID <span class="text-red-500">*</span></label>
+            <input name="department_id" required type="text" placeholder="e.g. 1"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Effective Date <span class="text-red-500">*</span></label>
+            <input name="eff_date" required type="date"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Expiry Date <span class="text-red-500">*</span></label>
+            <input name="exp_date" required type="date"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Mode</label>
+            <select name="mode"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="New">New</option>
+              <option value="Renew">Renew</option>
+              <option value="RenewCo">RenewCo</option>
+              <option value="NewOnExisting">NewOnExisting</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Stage</label>
+            <select name="stage"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="Marketing">Marketing</option>
+              <option value="Policy">Policy</option>
+              <option value="Endorsement">Endorsement</option>
+              <option value="Cancellation">Cancellation</option>
+              <option value="Audit">Audit</option>
+              <option value="Claim">Claim</option>
+              <option value="Opportunity">Opportunity</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Policy Type</label>
+            <select name="policy_type"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <option value="Monoline">Monoline</option>
+              <option value="Package">Package</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+            <input name="description" type="text" placeholder="Optional policy description"
+              class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          </div>
+        </div>
+        <div id="add-policy-error" class="hidden text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="closeModal('add-policy-modal')"
+            class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+          <button id="add-policy-submit" type="submit"
+            class="px-4 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors">
+            Create Policy
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script>
     // =========================================================================
@@ -297,8 +592,10 @@
 
     async function triggerSync() {
       await Promise.all([
-        fetch('/api/calls/sync',  { method: 'POST' }).then(r => { if (!r.ok) throw new Error(`calls sync HTTP ${r.status}`); }),
-        fetch('/api/emails/sync', { method: 'POST' }).then(r => { if (!r.ok) throw new Error(`emails sync HTTP ${r.status}`); }),
+        fetch('/api/calls/sync',           { method: 'POST' }).then(r => { if (!r.ok) throw new Error(`calls sync HTTP ${r.status}`); }),
+        fetch('/api/emails/sync',          { method: 'POST' }).then(r => { if (!r.ok) throw new Error(`emails sync HTTP ${r.status}`); }),
+        fetch('/api/nexsure/clients/sync',   { method: 'POST' }).then(r => { if (!r.ok) throw new Error(`nexsure sync HTTP ${r.status}`); }),
+        fetch('/api/nexsure/sic-naics/sync', { method: 'POST' }).then(r => { if (!r.ok) throw new Error(`sic-naics sync HTTP ${r.status}`); }),
       ]);
     }
 
@@ -517,6 +814,8 @@
         // Reset cursor stack so emails restarts from page 1 with fresh cache
         emailsCursorStack = [null];
         emailsStackIndex  = 0;
+        nexsurePaginator.currentPage = 1;
+        sicNaicsPaginator.currentPage = 1;
         await Promise.all(cardLoaders.map(fn => fn(true)));
       } catch (e) {
         showError('Sync failed: ' + e.message);
@@ -642,9 +941,294 @@
     }
 
     // =========================================================================
+    // Nexsure Clients card
+    // =========================================================================
+    let _nexsureSearchTimer = null;
+
+    const nexsurePaginator = new Paginator({
+      name: 'nexsure',
+      containerId: 'nexsure-pagination',
+      defaultPageSize: 25,
+      pageSizeOptions: [10, 25, 50, 100],
+      onPageChange: () => loadNexsureClients(true),
+    });
+
+    function _loadNexsureSearchCookie() {
+      const m = document.cookie.match(/(?:^|; )nexsure_search=([^;]*)/);
+      return m ? decodeURIComponent(m[1]) : 'aa';
+    }
+
+    function _saveNexsureSearchCookie(val) {
+      document.cookie = `nexsure_search=${encodeURIComponent(val)};path=/;max-age=${60 * 60 * 24 * 365}`;
+    }
+
+    function onNexsureSearch() {
+      const val = document.getElementById('nexsure-search').value.trim();
+      _saveNexsureSearchCookie(val);
+      clearTimeout(_nexsureSearchTimer);
+      _nexsureSearchTimer = setTimeout(() => {
+        nexsurePaginator.currentPage = 1;
+        loadNexsureClients(true);
+      }, 300);
+    }
+
+    async function fetchNexsureClients() {
+      const search = document.getElementById('nexsure-search').value.trim();
+      const params = new URLSearchParams({
+        search,
+        page: nexsurePaginator.currentPage,
+        page_size: nexsurePaginator.pageSize,
+      });
+      const res = await fetch(`/api/nexsure/clients?${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    function stageBadge(stage) {
+      const map = {
+        Prospect: 'bg-blue-100 text-blue-700',
+        Client:   'bg-green-100 text-green-700',
+        Suspect:  'bg-yellow-100 text-yellow-700',
+      };
+      const cls = map[stage] || 'bg-gray-100 text-gray-600';
+      return `<span class="px-2 py-0.5 rounded-full text-xs font-medium ${cls}">${escapeHtml(stage || '—')}</span>`;
+    }
+
+    function typeBadge(type) {
+      const cls = type === 'Personal'
+        ? 'bg-purple-100 text-purple-700'
+        : 'bg-indigo-100 text-indigo-700';
+      return `<span class="px-2 py-0.5 rounded-full text-xs font-medium ${cls}">${escapeHtml(type || '—')}</span>`;
+    }
+
+    function renderNexsureTable(data) {
+      const { clients } = data;
+      const tbody = document.getElementById('nexsure-body');
+      nexsurePaginator.update(data);
+
+      document.getElementById('nexsure-count').textContent =
+        data.total ? `${data.total} total` : '';
+
+      if (!clients.length) {
+        const msg = data.hint || 'No clients found.';
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-12 text-center text-gray-400">${escapeHtml(msg)}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = clients.map(c => `
+        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3 text-xs text-gray-500 font-mono">${escapeHtml(c.client_id)}</td>
+          <td class="px-4 py-3 font-medium text-gray-900 text-sm">${escapeHtml(c.name)}</td>
+          <td class="px-4 py-3">${typeBadge(c.client_type)}</td>
+          <td class="px-4 py-3">${stageBadge(c.stage)}</td>
+          <td class="px-4 py-3 text-xs text-gray-600">${escapeHtml(c.city || '—')}</td>
+          <td class="px-4 py-3 text-xs text-gray-600">${escapeHtml(c.state || '—')}</td>
+        </tr>`).join('');
+    }
+
+    async function loadNexsureClients(silent = false) {
+      if (!silent) showError(null);
+      try {
+        const data = await fetchNexsureClients();
+        renderNexsureTable(data);
+      } catch (e) {
+        showError('Failed to load Nexsure clients: ' + e.message);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Modal helpers
+    // -------------------------------------------------------------------------
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      // Reset the form and clear any error message
+      const form = document.getElementById(id).querySelector('form');
+      if (form) form.reset();
+      const errEl = document.getElementById(id).querySelector('[id$="-error"]');
+      if (errEl) errEl.classList.add('hidden');
+    }
+
+    // Close modal when clicking the backdrop
+    document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+      modal.addEventListener('click', e => {
+        if (e.target === modal) closeModal(modal.id);
+      });
+    });
+
+    // -------------------------------------------------------------------------
+    // Add Client form submission
+    // -------------------------------------------------------------------------
+    async function submitAddClient(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = document.getElementById('add-client-submit');
+      const errEl = document.getElementById('add-client-error');
+      errEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Creating…';
+
+      const body = {
+        name:                form.name.value.trim(),
+        branch_id:           form.branch_id.value.trim(),
+        department_id:       form.department_id.value.trim(),
+        street:              form.street.value.trim(),
+        city:                form.city.value.trim(),
+        state:               form.state.value.trim().toUpperCase(),
+        zip_code:            form.zip_code.value.trim(),
+        client_type:         form.client_type.value,
+        stage:               form.stage.value,
+        legal_entity:        form.legal_entity.value,
+        contact_first_name:  form.contact_first_name.value.trim(),
+        contact_last_name:   form.contact_last_name.value.trim(),
+      };
+
+      try {
+        const res = await fetch('/api/nexsure/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+        closeModal('add-client-modal');
+        nexsurePaginator.currentPage = 1;
+        await loadNexsureClients(true);
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Client';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Add Policy form submission
+    // -------------------------------------------------------------------------
+    async function submitAddPolicy(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = document.getElementById('add-policy-submit');
+      const errEl = document.getElementById('add-policy-error');
+      errEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Creating…';
+
+      const body = {
+        client_id:    form.client_id.value.trim(),
+        policy_number: form.policy_number.value.trim(),
+        branch_id:    form.branch_id.value.trim(),
+        department_id: form.department_id.value.trim(),
+        eff_date:     form.eff_date.value,
+        exp_date:     form.exp_date.value,
+        description:  form.description.value.trim(),
+        mode:         form.mode.value,
+        stage:        form.stage.value,
+        policy_type:  form.policy_type.value,
+      };
+
+      try {
+        const res = await fetch('/api/nexsure/policies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+        closeModal('add-policy-modal');
+        nexsurePaginator.currentPage = 1;
+        await loadNexsureClients(true);
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Policy';
+      }
+    }
+
+    // =========================================================================
+    // SIC / NAICS card
+    // =========================================================================
+    let _sicNaicsTimer = null;
+
+    const sicNaicsPaginator = new Paginator({
+      name: 'sic-naics',
+      containerId: 'sic-naics-pagination',
+      defaultPageSize: 20,
+      pageSizeOptions: [10, 20, 50],
+      onPageChange: () => loadSicNaics(true),
+    });
+
+    function onSicNaicsSearch() {
+      clearTimeout(_sicNaicsTimer);
+      _sicNaicsTimer = setTimeout(() => {
+        sicNaicsPaginator.currentPage = 1;
+        loadSicNaics(true);
+      }, 300);
+    }
+
+    async function fetchSicNaics() {
+      const params = new URLSearchParams({
+        naics_description: document.getElementById('sic-naics-desc').value.trim(),
+        sic_description:   document.getElementById('sic-desc').value.trim(),
+        naics_code:        document.getElementById('naics-code').value.trim(),
+        sic_code:          document.getElementById('sic-code').value.trim(),
+        page:              sicNaicsPaginator.currentPage,
+        page_size:         sicNaicsPaginator.pageSize,
+      });
+      const res = await fetch(`/api/nexsure/sic-naics?${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    function renderSicNaicsTable(data) {
+      const { codes, page, total_pages } = data;
+      const tbody = document.getElementById('sic-naics-body');
+
+      // Feed paginator — no total count from server, use total_pages * page_size as upper bound
+      sicNaicsPaginator.update({
+        total: total_pages * sicNaicsPaginator.pageSize,
+        total_pages,
+        page,
+      });
+      document.getElementById('sic-naics-count').textContent =
+        codes.length ? `${codes.length} shown` : '';
+
+      if (!codes.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-12 text-center text-gray-400">No results — try a different search term.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = codes.map(c => `
+        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3 font-mono text-xs text-gray-700">${escapeHtml(c.naics_code || '—')}</td>
+          <td class="px-4 py-3 text-sm text-gray-800">${escapeHtml(c.naics_description || '—')}</td>
+          <td class="px-4 py-3 font-mono text-xs text-gray-700">${escapeHtml(c.sic_code || '—')}</td>
+          <td class="px-4 py-3 text-sm text-gray-800">${escapeHtml(c.sic_description || '—')}</td>
+        </tr>`).join('');
+    }
+
+    async function loadSicNaics(silent = false) {
+      if (!silent) showError(null);
+      try {
+        const data = await fetchSicNaics();
+        renderSicNaicsTable(data);
+      } catch (e) {
+        showError('Failed to load SIC/NAICS: ' + e.message);
+      }
+    }
+
+    // =========================================================================
     // Universal refresh — add every card loader here
     // =========================================================================
-    const cardLoaders = [loadCalls, loadEmails];
+    const cardLoaders = [loadCalls, loadSicNaics, loadNexsureClients, loadEmails];
 
     // Poll every 30 s — reload all cards silently
     function startAutoRefresh() {
@@ -658,7 +1242,13 @@
     document.getElementById('refresh-btn').addEventListener('click', handleRefresh);
 
     restoreCardState('calls');
+    restoreCardState('nexsure');
+    restoreCardState('sic-naics');
     restoreCardState('emails');
+
+    // Restore last client search (default "aa")
+    document.getElementById('nexsure-search').value = _loadNexsureSearchCookie();
+
     cardLoaders.forEach(fn => fn());
     startAutoRefresh();
   </script>
