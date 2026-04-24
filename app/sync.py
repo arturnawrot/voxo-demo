@@ -1,4 +1,5 @@
 import logging
+import threading
 from datetime import datetime, timedelta, timezone
 
 from sqlmodel import Session, select
@@ -9,6 +10,8 @@ from app.models import Call
 from app.voxo_client import get_tenant_id, get_voxo_client
 
 logger = logging.getLogger(__name__)
+
+_sync_lock = threading.Lock()
 
 
 def _date_range() -> tuple[str, str]:
@@ -23,6 +26,17 @@ def run_sync() -> dict:
     Fetch call logs from Voxo, persist new ones, mark recorded calls as
     pending transcription.  Idempotent — existing call_ids are skipped.
     """
+    if not _sync_lock.acquire(blocking=False):
+        logger.info("Sync already in progress — skipping duplicate call")
+        return {"new_calls": 0, "pending_transcriptions": 0}
+
+    try:
+        return _run_sync()
+    finally:
+        _sync_lock.release()
+
+
+def _run_sync() -> dict:
     logger.info("Sync started")
     client = get_voxo_client()
     start_date, end_date = _date_range()
@@ -34,13 +48,19 @@ def run_sync() -> dict:
 
     with Session(engine) as session:
         while page <= max_page:
-            response = client.v2.CallLogs.execute(
-                tenant_id=get_tenant_id(),
-                start_date=start_date,
-                end_date=end_date,
-                page=page,
-                records_per_page=50,
-            )
+            try:
+                response = client.v2.CallLogs.execute(
+                    tenant_id=get_tenant_id(),
+                    start_date=start_date,
+                    end_date=end_date,
+                    page=page,
+                    records_per_page=50,
+                )
+            except Exception as exc:
+                logger.warning("Skipping page %d — Voxo deserialization error: %s", page, exc)
+                page += 1
+                continue
+
             max_page = response.maxPage
 
             for record in response.records:
